@@ -7,6 +7,7 @@ const rateLimit = require("express-rate-limit");
 const jwt = require('jsonwebtoken'); // Dodaj tę linię
 require("dotenv").config();
 const UserModel = require("./models/User");
+const bcrypt = require('bcrypt')
 
 const app = express();
 
@@ -61,28 +62,43 @@ app.post('/api/convert', verifyToken, async (req, res) => {
 
 mongoose.connect("mongodb+srv://Jacek:12345@currency-converter.s7q5p.mongodb.net/currency-converter", { useNewUrlParser: true, useUnifiedTopology: true });
 
-app.post("/login", (req, res) => {
-    const {email, password} = req.body;
-    UserModel.findOne({email: email})
-    .then(user => {
-        if(user) {
-            if(user.password === password) {
+app.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await UserModel.findOne({ email: email });
+        if (user) {
+            const validPassword = await bcrypt.compare(password, user.password);
+            if (validPassword) {
                 const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-                res.json({ auth: true, token: token });
+                res.json({ auth: true, token: token, user: { id: user._id, name: user.name, email: user.email } });
             } else {
                 res.status(401).json("The password is incorrect");
             }
         } else {
             res.status(404).json("No record existed");
         }
-    })
-    .catch(err => res.status(500).json({ message: err.message }));
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
-app.post('/register', (req, res) => {
-    UserModel.create(req.body)
-    .then(users => res.json(users))
-    .catch(err => res.status(500).json(err));
+app.post('/register', async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newUser = new UserModel({
+            name,
+            email,
+            password: hashedPassword
+        });
+
+        const savedUser = await newUser.save();
+        res.status(201).json(savedUser);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 app.listen(PORT, () => {

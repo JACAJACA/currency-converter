@@ -15,7 +15,7 @@ const Login = () => {
         try {
             const response = await axios.post('http://localhost:5000/login', { email, password });
             if (response.data.auth) {
-                login(response.data.token);
+                login({ token: response.data.token, user: response.data.user });
                 navigate('/home');
             } else {
                 console.error('Login failed:', response.data);

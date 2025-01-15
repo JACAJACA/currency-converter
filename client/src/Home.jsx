@@ -5,7 +5,7 @@ import { useAuth } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user, logout } = useAuth(); // Dodajemy user i logout do destrukturyzacji
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         from: '',
@@ -50,9 +50,19 @@ const Home = () => {
         }
     };
 
+    // Funkcja obsługująca wylogowanie
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     return (
         <div className="home-container">
             <h1 className="title">Currency Converter</h1>
+            <div className="user-info">
+                <p>Welcome, <strong>{user?.name || 'User'}</strong></p>
+                <button onClick={handleLogout} className="btn-logout">Logout</button>
+            </div>
             <form onSubmit={handleSubmit} className="currency-form">
                 <div className="form-group">
                     <label htmlFor="from">From Currency</label>
