@@ -1,0 +1,12 @@
+# Dodanie użytkownika (POST)
+POST http://localhost:5000/api/users
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "email": "newuser@example.com",
+  "password": "password123"
+}
+
+# Pobieranie użytkowników (GET)
+GET http://localhost:5000/api/users
