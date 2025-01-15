@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import axios from './axiosConfig';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import './ConversionHistory.css'
 
 const ConversionHistory = () => {
     const { isAuthenticated, user } = useAuth();
+    const navigate = useNavigate();
     const [history, setHistory] = useState([]);
+
+    useEffect(() => {
+            console.log('Home useEffect - isAuthenticated:', isAuthenticated);
+            const checkAuth = setTimeout(() => {
+                if (!isAuthenticated) {
+                    console.log('Not authenticated, redirecting to login');
+                    navigate('/login');
+                }
+            }, 100);
+    
+            return () => clearTimeout(checkAuth);
+        }, [isAuthenticated, user, navigate]);
 
     useEffect(() => {
         if (isAuthenticated) {

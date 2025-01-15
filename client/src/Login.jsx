@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from './axiosConfig';
 import { useAuth } from './AuthContext';
 import './Login.css';
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -16,6 +17,8 @@ const Login = () => {
             const response = await axios.post('http://localhost:5000/login', { email, password });
             if (response.data.auth) {
                 login({ token: response.data.token, user: response.data.user });
+                sessionStorage.setItem('token', response.data.token);
+                sessionStorage.setItem('user', JSON.stringify(response.data.user));
                 navigate('/home');
             } else {
                 console.error('Login failed:', response.data);

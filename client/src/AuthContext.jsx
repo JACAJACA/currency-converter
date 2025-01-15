@@ -7,8 +7,9 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const userData = JSON.parse(localStorage.getItem('user'));
+        const token = sessionStorage.getItem('token');
+        const userData = JSON.parse(sessionStorage.getItem('user'));
+        console.log('On refresh, token:', token, 'user:', userData);
         if (token && userData) {
             setIsAuthenticated(true);
             setUser(userData);
@@ -16,15 +17,16 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = ({ token, user }) => {
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+        console.log('Logging in with token:', token, 'and user:', user);
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('user', JSON.stringify(user));
         setIsAuthenticated(true);
         setUser(user);
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         setIsAuthenticated(false);
         setUser(null);
     };

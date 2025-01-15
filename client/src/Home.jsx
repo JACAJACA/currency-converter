@@ -5,7 +5,7 @@ import { useAuth } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
-    const { isAuthenticated, user, logout } = useAuth(); // Dodajemy user i logout do destrukturyzacji
+    const { isAuthenticated, user, logout } = useAuth();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         from: '',
@@ -14,10 +14,16 @@ const Home = () => {
     });
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            navigate('/login');
-        }
-    }, [isAuthenticated, navigate]);
+        console.log('Home useEffect - isAuthenticated:', isAuthenticated);
+        const checkAuth = setTimeout(() => {
+            if (!isAuthenticated) {
+                console.log('Not authenticated, redirecting to login');
+                navigate('/login');
+            }
+        }, 100);
+
+        return () => clearTimeout(checkAuth);
+    }, [isAuthenticated, user, navigate]);
 
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');

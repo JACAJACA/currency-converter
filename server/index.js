@@ -29,10 +29,14 @@ app.use(cors(corsOptions));
 
 const verifyToken = (req, res, next) => {
     const token = req.headers['authorization'];
+    console.log('Token from header:', token);
     if (!token) return res.status(403).json({ auth: false, message: 'No token provided.' });
     
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' });
+        if (err) {
+            console.error('JWT Verification Error:', err);
+            return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' });
+        }
         
         req.userId = decoded.id;
         next();
