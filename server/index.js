@@ -16,9 +16,13 @@ const apiLimiter = rateLimit({
     max: 100,
 });
 
+const corsOptions = {
+    origin:['http://localhost:5173']
+}
+
 app.use(express.json());
 app.use(apiLimiter);
-app.use(cors())
+app.use(cors(corsOptions))
 
 app.post('/api/convert', async(req, res) => {
     try {
