@@ -100,3 +100,16 @@
     background-color: #dc3545;
     color: white;
 }
+
+.btn-history {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.btn-history:hover {
+    background-color: #0056b3;
+}

@@ -50,7 +50,10 @@ const Home = () => {
         }
     };
 
-    // Funkcja obsługująca wylogowanie
+    const handleViewHistory = () => {
+        navigate('/history');
+    };
+
     const handleLogout = () => {
         logout();
         navigate('/login');
@@ -119,6 +122,13 @@ const Home = () => {
                 </div>
             )}
             {error && <div className="error">{error}</div>}
+
+            <button 
+                onClick={handleViewHistory} 
+                className="btn-history"
+            >
+                View Conversion History
+            </button>
         </div>
     );
 }

@@ -1,0 +1,39 @@
+.conversion-history {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.conversion-history h2 {
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.conversion-history ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.conversion-history li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.conversion-history li:last-child {
+    border-bottom: none;
+}
+
+.conversion-history p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.conversion-history p strong {
+    color: #007bff;
+}

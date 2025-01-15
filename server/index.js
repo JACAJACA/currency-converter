@@ -4,9 +4,10 @@ const mongoose = require('mongoose');
 const cors = require("cors");
 const PORT = process.env.PORT || 5000;
 const rateLimit = require("express-rate-limit");
-const jwt = require('jsonwebtoken'); // Dodaj tę linię
+const jwt = require('jsonwebtoken');
 require("dotenv").config();
 const UserModel = require("./models/User");
+const ConversionHistoryModel = require("./models/conversionHistory")
 const bcrypt = require('bcrypt')
 
 const app = express();
@@ -40,23 +41,46 @@ const verifyToken = (req, res, next) => {
 
 app.post('/api/convert', verifyToken, async (req, res) => {
     try {
-        const {from, to, amount} = req.body;
+        const { from, to, amount } = req.body;
         console.log({from, to, amount});
 
         const url = `${API_URL}/${API_KEY}/pair/${from}/${to}/${amount}`
         const response = await axios.get(url)
         if(response.data && response.data.result === 'success'){
-            res.json({
+            const conversionData = {
                 base: from,
                 target: to,
                 conversionRate: response.data.conversion_rate,
                 conversionAmount: response.data.conversion_result,
-            })
+            }
+
+            const historyEntry = new ConversionHistoryModel({
+                userId: req.userId,
+                fromCurrency: from,
+                toCurrency: to,
+                amount: parseFloat(amount),
+                convertedAmount: parseFloat(conversionData.conversionAmount),
+                conversionRate: parseFloat(conversionData.conversionRate),
+            });
+            await historyEntry.save();
+
+            res.json(conversionData)
         } else {
-            res.json({message:"Error converting currency", details: response.data});
+            res.status(400).json({message:"Error converting currency", details: response.data});
         }
     } catch (error) {
-        res.json({message:"Error converting currency", details: error.message});
+        res.status(500).json({message:"Error converting currency", details: error.message});
+    }
+});
+
+app.get('/api/conversion-history', verifyToken, async (req, res) => {
+    try {
+        const userId = req.userId;
+        const history = await ConversionHistoryModel.find({ userId }).sort({ conversionDate: -1 }).lean();
+        console.log('History data:', history);
+        res.json(history);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching conversion history', details: error.message });
     }
 });
 
