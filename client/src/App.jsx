@@ -4,16 +4,20 @@ import Signup from './Signup'
 import Login from './Login'
 import Home from './Home'
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './axiosConfig'
+import { AuthProvider } from './AuthContext'
 
 function App() {
   return (
     <div>
       <BrowserRouter>
-        <Routes>
-          <Route path='/register' element={<Signup />}></Route>
-          <Route path='/login' element={<Login />}></Route>
-          <Route path='/home' element={<Home />}></Route>
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path='/register' element={<Signup />}></Route>
+            <Route path='/login' element={<Login />}></Route>
+            <Route path='/home' element={<Home />}></Route>
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </div>
   )

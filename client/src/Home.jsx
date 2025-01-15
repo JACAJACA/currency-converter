@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Home.css';
+import { useAuth } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
+    const { isAuthenticated } = useAuth();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         from: '',
         to: '',
         amount: ''
     });
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate('/login');
+        }
+    }, [isAuthenticated, navigate]);
 
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './Signup.css'; // Assuming you create this file for custom styles
+import './Signup.css'
 
 const Signup = () => {
     const [name, setName] = useState('');
@@ -10,14 +9,14 @@ const Signup = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        axios.post('http://localhost:3001/register', { name, email, password })
-        .then(result => {
-            console.log(result);
+        try {
+            await axios.post('http://localhost:5000/register', { name, email, password });
             navigate('/login');
-        })
-        .catch(err => console.log(err));
+        } catch (err) {
+            console.error('Błąd podczas rejestracji:', err);
+        }
     };
 
     return (

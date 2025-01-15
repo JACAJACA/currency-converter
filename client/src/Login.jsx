@@ -1,24 +1,28 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './Login.css'; // Assuming you create this file for custom styles
+import { useAuth } from './AuthContext';
+import './Login.css';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const { login } = useAuth();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        axios.post('http://localhost:3001/login', { email, password })
-        .then(result => {
-            console.log(result);
-            if(result.data === "Success") {
+        try {
+            const response = await axios.post('http://localhost:5000/login', { email, password });
+            if (response.data.auth) {
+                login(response.data.token);
                 navigate('/home');
+            } else {
+                console.error('Login failed:', response.data);
             }
-        })
-        .catch(err => console.log(err));
+        } catch (err) {
+            console.error('Error while logging in:', err);
+        }
     };
 
     return (
