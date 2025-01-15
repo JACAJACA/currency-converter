@@ -1,12 +1,28 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
+    const [name, setName] = useState()
+    const [email, setEmail] = useState()
+    const [password, setPassword] = useState()
+    const navigate = useNavigate()
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        axios.post('http://localhost:3001/register', {name, email, password})
+        .then(result => {console.log(result)
+        navigate('/login')
+        })
+        .catch(err => console.log(err))
+    }
+
   return (
     <div className="d-flex justify-content-center align-items-center bg-secondary vh-100">
-      <div className="bg-white p-3 rounded w-25">
+      <div className="bg-white p-3 rounded w-50">
         <h2>Register</h2>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="name" className="form-label">
               <strong>Name:</strong>
@@ -18,6 +34,7 @@ const Signup = () => {
               autoComplete="off"
               name="name"
               className="form-control rounded-0"
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="mb-3">
@@ -31,6 +48,7 @@ const Signup = () => {
               autoComplete="off"
               name="email"
               className="form-control rounded-0"
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="mb-3">
@@ -44,19 +62,7 @@ const Signup = () => {
               autoComplete="off"
               name="password"
               className="form-control rounded-0"
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="confirmPassword" className="form-label">
-              <strong>Confirm Password:</strong>
-            </label>
-            <input 
-              type="password"
-              id="confirmPassword"
-              placeholder="Confirm Password"
-              autoComplete="off"
-              name="confirmPassword"
-              className="form-control rounded-0"
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <button type="submit" className="btn btn-primary w-100">Register</button>
