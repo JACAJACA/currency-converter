@@ -18,29 +18,29 @@ https://drive.google.com/file/d/1cGq5RqzD5whS5Jkh2wNQU_7nXjHMQ36V/view?usp=shari
 
 ## Testy Jednostkowe
 
-1. Powinien poprawnie renderować formularz.
-2. Powinien wyświetlać przycisk wylogowania i obsługiwać kliknięcie.
-3. Powinien wyświetlać poprawną wiadomość powitalną z nazwą użytkownika.
-4. Powinien poprawnie renderować formularz rejestracji.
-5. Powinien poprawnie renderować formularz logowania.
-6. Powinien pokazać komunikat błędu, gdy logowanie nie powiedzie się.
-7. Powinien wyłączyć przycisk logowania, gdy pola są puste.
-8. Powinien renderować listę historii konwersji, gdy dane są dostępne.
-9. Powinien pokazać komunikat, gdy nie ma dostępnej historii konwersji.
-10. Powinien przekierować na stronę główną po pomyślnym zalogowaniu.
+1. Powinien poprawnie renderować formularz. [Home.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/Home.test.jsx)
+2. Powinien wyświetlać przycisk wylogowania i obsługiwać kliknięcie. [Home.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/Home.test.jsx)
+3. Powinien wyświetlać poprawną wiadomość powitalną z nazwą użytkownika. [Home.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/Home.test.jsx)
+4. Powinien poprawnie renderować formularz rejestracji. [Signup.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/Signup.test.jsx)
+5. Powinien poprawnie renderować formularz logowania. [Login.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/Login.test.jsx)
+6. Powinien pokazać komunikat błędu, gdy logowanie nie powiedzie się. [Login.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/Login.test.jsx)
+7. Powinien wyłączyć przycisk logowania, gdy pola są puste. [Login.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/Login.test.jsx)
+8. Powinien renderować listę historii konwersji, gdy dane są dostępne. [ConversionHistory.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/ConversionHistory.test.jsx)
+9. Powinien pokazać komunikat, gdy nie ma dostępnej historii konwersji. [ConversionHistory.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/ConversionHistory.test.jsx)
+10. Powinien wyświetlić komunikat błędu, jeśli odświeżenie tokenu nie powiedzie się. [TokenRefreshIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/TokenRefreshIntegration.test.jsx)
 
 ## Testy Integracyjne
 
-1. Powinien wyświetlać wynik konwersji po pomyślnym żądaniu konwersji.
-2. Powinien wyświetlać komunikat błędu, jeśli konwersja nie powiedzie się.
-3. Powinien obsługiwać wysyłanie formularza i wywołanie API.
+1. Powinien wyświetlać wynik konwersji po pomyślnym żądaniu konwersji. [CurrencyConversionIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/CurrencyConversionIntegration.test.jsx)
+2. Powinien wyświetlać komunikat błędu, jeśli konwersja nie powiedzie się. [CurrencyConversionIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/CurrencyConversionIntegration.test.jsx)
+3. Powinien obsługiwać wysyłanie formularza i wywołanie API. [Signup.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/Signup.test.jsx)
 4. Powinien przekierować na stronę logowania po kliknięciu przycisku wylogowania. [AuthIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/AuthIntegration.test.jsx)
-5. Powinien przekierować do historii konwersji po kliknięciu przycisku historii.
-6. Powinien odświeżyć token i kontynuować żądanie po jego wygaśnięciu.
-7. Powinien przekierować użytkownika na stronę logowania po pomyślnej rejestracji.
-8. Powinien przekierować na stronę główną po pomyślnym zalogowaniu.
-9. Powinien przekierować na stronę rejestracji po kliknięciu linku "Register".
-10. Powinien wyświetlić komunikat błędu, jeśli odświeżenie tokenu nie powiedzie się.
+5. Powinien przekierować do historii konwersji po kliknięciu przycisku historii. [AuthIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/AuthIntegration.test.jsx)
+6. Powinien odświeżyć token i kontynuować żądanie po jego wygaśnięciu. [TokenRefreshIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/TokenRefreshIntegration.test.jsx)
+7. Powinien przekierować użytkownika na stronę logowania po pomyślnej rejestracji. [NavigationIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/NavigationIntegration.test.jsx)
+8. Powinien przekierować na stronę główną po pomyślnym zalogowaniu. [ServerIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/ServerIntegration.test.jsx)
+9. Powinien przekierować na stronę rejestracji po kliknięciu linku "Register". [NavigationIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/NavigationIntegration.test.jsx)
+10. Powinien przekierować na stronę główną po pomyślnym zalogowaniu. [NavigationIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/NavigationIntegration.test.jsx)
 
 ## Dokumentacja API
 
