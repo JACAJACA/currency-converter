@@ -40,21 +40,36 @@ const Home = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         try {
+            // Najpierw próbujemy wykonać zapytanie do /api/convert
             const response = await api.post("/api/convert", formData);
-            console.log(response);
-            setResult(response?.data);
+            setResult(response.data);
             setError("");
         } catch (error) {
-            if (error?.response?.status === 403) {
-                console.warn("Token wygasł - wylogowanie");
-                logout();
-                navigate("/login");
+            // Jeśli otrzymamy błąd 401 (wygasły token), wykonujemy zapytanie do /api/refresh-token
+            if (error.response && error.response.status === 401) {
+                try {
+                    // Próba odświeżenia tokenu
+                    const refreshResponse = await api.post("/api/refresh-token", { token: localStorage.getItem("token") });
+                    // Zapisujemy nowy token w localStorage
+                    localStorage.setItem("token", refreshResponse.data.token);
+                    // Ponownie próbujemy wykonać zapytanie do /api/convert
+                    const retryResponse = await api.post("/api/convert", formData);
+                    setResult(retryResponse.data);
+                    setError("");
+                } catch (refreshError) {
+                    // Jeśli odświeżenie tokenu się nie powiedzie, wylogowujemy użytkownika
+                    setError("Token refresh failed. Please log in again.");
+                    logout();
+                    navigate("/login");
+                }
             } else {
-                setError(error?.response?.data?.message || error.message);
+                setError(error.response?.data?.message || error.message);
             }
         }
     };
+    
 
     const handleViewHistory = () => {
         navigate("/history");
@@ -123,7 +138,7 @@ const Home = () => {
                     <p>Conversion Rate: {result.conversionRate}</p>
                 </div>
             )}
-            {error && <div className="error">{error}</div>}
+            {error && <div className="error" data-testid='error-message'>{error}</div>}
 
             <button onClick={handleViewHistory} className="btn-history">
                 View Conversion History

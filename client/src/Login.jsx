@@ -13,10 +13,12 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("handleSubmit fired!");
         try {
             const response = await api.post('http://localhost:5000/login', { email, password });
             if (response.data.auth) {
                 login({ token: response.data.token, refreshToken: response.data.refreshToken, user: response.data.user });
+                console.log("Login function called!");
                 sessionStorage.setItem('token', response.data.token);
                 sessionStorage.setItem('refresh_token', response.data.refreshToken);
                 sessionStorage.setItem('user', JSON.stringify(response.data.user));
@@ -28,6 +30,8 @@ const Login = () => {
             console.error('Error while logging in:', err);
         }
     };
+
+    const isSubmitDisabled = !email || !password;
 
     return (
         <div className="login-container">
@@ -62,7 +66,7 @@ const Login = () => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    <button type="submit" className="btn-submit">Login</button>
+                    <button type="submit" className="btn-submit" disabled={isSubmitDisabled}>Login</button>
                 </form>
                 <p className="register-text">Don't have an account?</p>
                 <Link to="/register" className="btn-register">Register</Link>

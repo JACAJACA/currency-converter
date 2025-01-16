@@ -25,8 +25,11 @@ const ConversionHistory = () => {
 
         return () => {
             clearTimeout(checkAuth);
-            delete api.defaults.headers.common['Authorization'];
-        };
+            if (api.defaults.headers && api.defaults.headers.common) {
+              delete api.defaults.headers.common['Authorization'];
+            }
+          };
+          
     }, [isAuthenticated, user, navigate]);
 
     useEffect(() => {
