@@ -7,8 +7,9 @@ const rateLimit = require("express-rate-limit");
 const jwt = require('jsonwebtoken');
 require("dotenv").config();
 const UserModel = require("./models/User");
-const ConversionHistoryModel = require("./models/conversionHistory")
-const bcrypt = require('bcrypt')
+const ConversionHistoryModel = require("./models/conversionHistory");
+const RefreshTokenModel = require("./models/refreshToken");
+const bcrypt = require('bcrypt');
 
 const app = express();
 
@@ -28,19 +29,28 @@ app.use(apiLimiter);
 app.use(cors(corsOptions));
 
 const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization'];
-    console.log('Token from header:', token);
-    if (!token) return res.status(403).json({ auth: false, message: 'No token provided.' });
-    
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            console.error('JWT Verification Error:', err);
-            return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' });
-        }
+    let token = req.headers['authorization'];
+    if (token && token.startsWith('Bearer ')) {
+        token = token.slice(7, token.length);
         
-        req.userId = decoded.id;
-        next();
-    });
+        if (!token) return res.status(403).json({ auth: false, message: 'No token provided.' });
+        
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) {
+                console.error('JWT Verification Error:', err);
+                if (err.name === 'TokenExpiredError') {
+                    return res.status(403).json({ auth: false, message: 'Token expired' });
+                  }
+                  
+                return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' });
+            }
+            
+            req.userId = decoded.id;
+            next();
+        });
+    } else {
+        return res.status(403).json({ auth: false, message: 'No token provided or token format is incorrect.' });
+    }
 };
 
 app.post('/api/convert', verifyToken, async (req, res) => {
@@ -94,18 +104,35 @@ app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await UserModel.findOne({ email: email });
+        console.log('Found user:', user);
+        
         if (user) {
             const validPassword = await bcrypt.compare(password, user.password);
+            console.log('Password comparison result:', validPassword);
+            
             if (validPassword) {
                 const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-                res.json({ auth: true, token: token, user: { id: user._id, name: user.name, email: user.email } });
+                const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+                const refreshTokenRecord = new RefreshTokenModel({
+                    userId: user._id,
+                    token: refreshToken,
+                });
+                await refreshTokenRecord.save();
+
+                res.json({ 
+                    auth: true, 
+                    token: token, 
+                    refreshToken: refreshToken, 
+                    user: { id: user._id, name: user.name, email: user.email } 
+                });
             } else {
-                res.status(401).json("The password is incorrect");
+                res.status(401).json({ message: "The password is incorrect" });
             }
         } else {
-            res.status(404).json("No record existed");
+            res.status(404).json({ message: "No record existed" });
         }
     } catch (err) {
+        console.error('Login error:', err);
         res.status(500).json({ message: err.message });
     }
 });
@@ -131,4 +158,35 @@ app.post('/register', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
+});
+
+app.post('/api/refresh-token', async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            return res.status(403).json({ message: 'No refresh token provided' });
+        }
+
+        const refreshTokenRecord = await RefreshTokenModel.findOne({ token: refreshToken });
+        if (!refreshTokenRecord) {
+            return res.status(403).json({ message: 'Invalid refresh token' });
+        }
+
+        const user = await UserModel.findById(refreshTokenRecord.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        await RefreshTokenModel.deleteOne({ token: refreshToken });
+
+        const newAccessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+        const newRefreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+
+        await new RefreshTokenModel({ userId: user._id, token: newRefreshToken }).save();
+
+        res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error refreshing token', details: error.message });
+    }
 });

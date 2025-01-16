@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from './axiosConfig';
+import api from './axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import './ConversionHistory.css'
@@ -10,16 +10,24 @@ const ConversionHistory = () => {
     const [history, setHistory] = useState([]);
 
     useEffect(() => {
-            console.log('Home useEffect - isAuthenticated:', isAuthenticated);
-            const checkAuth = setTimeout(() => {
-                if (!isAuthenticated) {
-                    console.log('Not authenticated, redirecting to login');
-                    navigate('/login');
-                }
-            }, 100);
-    
-            return () => clearTimeout(checkAuth);
-        }, [isAuthenticated, user, navigate]);
+        console.log('Home useEffect - isAuthenticated:', isAuthenticated);
+        const checkAuth = setTimeout(() => {
+            if (!isAuthenticated) {
+                console.log('Not authenticated, redirecting to login');
+                navigate('/login');
+            }
+        }, 100);
+
+        const token = localStorage.getItem('token');
+        if (token) {
+          api.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+        }
+
+        return () => {
+            clearTimeout(checkAuth);
+            delete api.defaults.headers.common['Authorization'];
+        };
+    }, [isAuthenticated, user, navigate]);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -29,10 +37,10 @@ const ConversionHistory = () => {
 
     const fetchConversionHistory = async () => {
         try {
-            const response = await axios.get('/api/conversion-history');
+            const response = await api.get('/api/conversion-history');
             setHistory(response.data);
         } catch (error) {
-            console.error('Błąd podczas pobierania historii:', error);
+            console.error('Error while downloading history:', error);
         }
     };
 
