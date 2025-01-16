@@ -1,7 +1,7 @@
 # Testowanie i Jakość Oprogramowania
 
 ## Autor
-- Jacek Dusza]
+- Jacek Dusza
 
 ## Temat Projektu
 - Currency Converter
