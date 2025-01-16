@@ -34,7 +34,7 @@ https://drive.google.com/file/d/1cGq5RqzD5whS5Jkh2wNQU_7nXjHMQ36V/view?usp=shari
 1. Powinien wyświetlać wynik konwersji po pomyślnym żądaniu konwersji.
 2. Powinien wyświetlać komunikat błędu, jeśli konwersja nie powiedzie się.
 3. Powinien obsługiwać wysyłanie formularza i wywołanie API.
-4. Powinien przekierować na stronę logowania po kliknięciu przycisku wylogowania.
+4. Powinien przekierować na stronę logowania po kliknięciu przycisku wylogowania. [AuthIntegration.test.jsx](https://github.com/JACAJACA/currency-converter/blob/main/client/src/__tests__/AuthIntegration.test.jsx)
 5. Powinien przekierować do historii konwersji po kliknięciu przycisku historii.
 6. Powinien odświeżyć token i kontynuować żądanie po jego wygaśnięciu.
 7. Powinien przekierować użytkownika na stronę logowania po pomyślnej rejestracji.
