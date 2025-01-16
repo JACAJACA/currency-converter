@@ -56,7 +56,7 @@ const Home = () => {
         <div className="home-container">
             <h1 className="title">Currency Converter</h1>
             <div className="user-info">
-                <p>Welcome, <strong>{user?.name || "User"}</strong></p>
+                <p>Welcome, <strong>{user?.name}</strong></p>
                 <button onClick={handleLogout} className="btn-logout">Logout</button>
             </div>
             <form onSubmit={handleSubmit} className="currency-form">

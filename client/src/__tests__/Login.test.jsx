@@ -1,62 +1,170 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { vi } from 'vitest';
-import { BrowserRouter as Router } from 'react-router-dom';
-import Login from '../Login'; // Poprawiona ścieżka do komponentu Login
-import { AuthProvider, useAuth } from '../AuthContext'; // Poprawiona ścieżka do AuthContext
-import Home from '../Home';
+import { describe, it, vi, expect, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import Login from '../Login'; // Ensure the correct path
+import { useAuth } from '../AuthContext';
+import api from '../axiosConfig'; // Correct import for axiosConfig
+import { act } from 'react-dom/test-utils';
 
-// Mockowanie 'react-router-dom', w tym 'BrowserRouter', 'useNavigate' oraz 'Link'
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
-  BrowserRouter: ({ children }) => <div>{children}</div>,
-  useNavigate: () => vi.fn(),
-  Link: ({ children }) => <a>{children}</a>, // Mockowanie Linka
+// Mock the axiosConfig module properly
+vi.mock('../axiosConfig', () => ({
+  default: {
+    get: vi.fn(),
+    post: vi.fn(),
+  },
 }));
 
-// Mockowanie useAuth hook
+// Mock the AuthContext module
 vi.mock('../AuthContext', () => ({
-  useAuth: () => ({
-    login: vi.fn(),
-  }),
+  useAuth: vi.fn(),
 }));
 
 describe('Login Component', () => {
-  test('renders Login form', () => {
-    render(
-      <Router>
-        <Login />
-      </Router>
-    );
+  let loginMock;
 
-    // Sprawdzenie, czy elementy formularza są widoczne
-    expect(screen.getAllByText(/Login/i)).toHaveLength(2);
-    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
+  beforeEach(() => {
+    loginMock = vi.fn();
+    useAuth.mockReturnValue({ login: loginMock });
+    // Mock console.error before each test
+    vi.spyOn(global.console, 'error').mockImplementation(vi.fn());
   });
 
-  test('calls handleSubmit when form is submitted', () => {
-    const { login } = Login; // Poprawiony import login
-    const home = Home;
-  
-    render(
-      <Router home={home}>
+  afterEach(() => {
+    // Restore all mocks after each test
+    vi.restoreAllMocks();
+  });
+
+  it('should render login form', async () => {
+    // Given
+    // We are rendering the Login component within a BrowserRouter context
+
+    // When
+    await act(async () => {
+      render(
+        <BrowserRouter>
           <Login />
-      </Router>
-    );
-  
-    // Wyszukiwanie elementów formularza
-    const emailInput = screen.getByLabelText(/Email/i);
-    const passwordInput = screen.getByLabelText(/Password/i);
+        </BrowserRouter>
+      );
+    });
+    screen.debug();
+
+    // Then
+    expect(screen.getByText(/Login./i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Enter Email/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Enter Password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();
+  });
+
+  it('should update email and password fields', async () => {
+    // Given
+    // We have rendered the Login component
+
+    await act(async () => {
+      render(
+        <BrowserRouter>
+          <Login />
+        </BrowserRouter>
+      );
+    });
+
+    const emailInput = screen.getByPlaceholderText(/Enter Email/i);
+    const passwordInput = screen.getByPlaceholderText(/Enter Password/i);
+
+    // When
+    // We change the values in email and password inputs
+    await act(async () => {
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    });
+
+    // Then
+    // We expect the values of email and password inputs to be updated
+    expect(emailInput.value).toBe('test@example.com');
+    expect(passwordInput.value).toBe('password123');
+  });
+
+  it('should call API and login on form submit', async () => {
+    // Given
+    // We have a mock response for a successful login
+    const mockResponse = {
+      data: {
+        auth: true,
+        token: 'mockAccessToken',
+        refreshToken: 'mockRefreshToken',
+        user: { id: '123', name: 'Test User', email: 'test@example.com' },
+      },
+    };
+
+    // Mock the resolved value of the POST request
+    api.post.mockResolvedValue(mockResponse);
+
+    // When
+    // We render the Login component and simulate form submission
+    await act(async () => {
+      render(
+        <BrowserRouter>
+          <Login />
+        </BrowserRouter>
+      );
+    });
+
+    const emailInput = screen.getByPlaceholderText(/Enter Email/i);
+    const passwordInput = screen.getByPlaceholderText(/Enter Password/i);
     const loginButton = screen.getByRole('button', { name: /Login/i });
+
+    await act(async () => {
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.change(passwordInput, { target: { value: 'password123' } });
+      fireEvent.click(loginButton);
+    });
+
+    // Then
+    // We expect the API to be called with the correct credentials
+    expect(api.post).toHaveBeenCalledWith(
+      'http://localhost:5000/login',
+      {
+        email: 'test@example.com',
+        password: 'password123',
+      }
+    );
+
+    // And we expect the login function to be called with the correct mock response data
+    await waitFor(() => {
+      expect(loginMock).toHaveBeenCalledWith({
+        token: 'mockAccessToken',
+        refreshToken: 'mockRefreshToken',
+        user: { id: '123', name: 'Test User', email: 'test@example.com' },
+      });
+    });
+  });
+
+  it('should show error message if login fails', async () => {
+    // Given
+    // We have a mock rejection for a failed login attempt
+    api.post.mockRejectedValue(new Error('Login failed'));
   
-    // Wypełnianie formularza
-    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    // When
+    // We render the Login component and simulate clicking the login button
+    await act(async () => {
+      render(
+        <BrowserRouter>
+          <Login />
+        </BrowserRouter>
+      );
+    });
   
-    // Wysłanie formularza
-    fireEvent.click(loginButton);
+    // We are waiting for the component to re-render
+    await waitFor(() => {
+      const loginButton = screen.getByRole('button', { name: /Login/i });
+      act(() => {
+        fireEvent.click(loginButton);
+      });
+    });
   
-    // Sprawdzenie, czy funkcja login została wywołana
-    expect(login).toHaveBeenCalledTimes(1);
+    // Then
+    // We expect an error to be logged to console
+    await waitFor(() => {
+      expect(global.console.error).toHaveBeenCalledWith('Error while logging in:', expect.any(Error));
+    });
   });
 });
