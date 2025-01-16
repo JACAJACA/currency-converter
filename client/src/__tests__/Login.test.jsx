@@ -1,9 +1,9 @@
 import { describe, it, vi, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import Login from '../Login'; // Ensure the correct path
+import Login from '../Login';
 import { useAuth } from '../AuthContext';
-import api from '../axiosConfig'; // Correct import for axiosConfig
+import api from '../axiosConfig';
 import { act } from 'react-dom/test-utils';
 
 // Mock the axiosConfig module properly
@@ -46,7 +46,6 @@ describe('Login Component', () => {
         </BrowserRouter>
       );
     });
-    screen.debug();
 
     // Then
     expect(screen.getByText(/Login./i)).toBeInTheDocument();

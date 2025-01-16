@@ -14,11 +14,24 @@ const Home = () => {
     const currencyCodes = ["USD", "EUR", "GBP", "GHS", "JPY", "CAD"];
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            console.log("Not authenticated - redirecting to login");
-            navigate("/login");
+        console.log('Home useEffect - isAuthenticated:', isAuthenticated);
+        const checkAuth = setTimeout(() => {
+            if (!isAuthenticated) {
+                console.log('Not authenticated, redirecting to login');
+                navigate('/login');
+            }
+        }, 100);
+
+        const token = localStorage.getItem('token');
+        if (token) {
+          api.defaults.headers.common['Authorization'] = 'Bearer ' + token;
         }
-    }, [isAuthenticated, navigate]);
+
+        return () => {
+            clearTimeout(checkAuth);
+            delete api.defaults.headers.common['Authorization'];
+        };
+    }, [isAuthenticated, user, navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -106,8 +119,8 @@ const Home = () => {
             </form>
             {result && (
                 <div className="result">
-                    <p>Converted Amount: <span>{result.conversionAmount} {result.target}</span></p>
-                    <p>Conversion Rate: <span>{result.conversionRate}</span></p>
+                    <p>Converted Amount: {result.conversionAmount} {result.target}</p>
+                    <p>Conversion Rate: {result.conversionRate}</p>
                 </div>
             )}
             {error && <div className="error">{error}</div>}
